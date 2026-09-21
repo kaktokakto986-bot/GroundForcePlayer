@@ -916,11 +916,18 @@ try {
         provider = new GoogleAuthProvider();
         provider.setCustomParameters({ prompt: 'select_account' });
         database = getDatabase(app);
+
+        // Firebase уже успешно инициализирован
         isFirebaseConfigured = true;
-        // Постоянная авторизация: пользователь остаётся авторизованным
-        // после перезагрузки страницы и повторного открытия игры.
-        await setPersistence(auth, browserLocalPersistence);
-        console.log("✅ Firebase подключён, LOCAL persistence включён");
+
+        // Постоянная авторизация — если браузер позволяет
+        try {
+            await setPersistence(auth, browserLocalPersistence);
+            console.log("✅ Firebase подключён, LOCAL persistence включён");
+        } catch (persistenceError) {
+            console.warn("⚠️ Не удалось включить LOCAL persistence:", persistenceError);
+            console.log("✅ Firebase всё равно подключён");
+        }
     } else {
         console.warn("⚠️ Firebase не настроен. Использую локальный режим.");
     }
